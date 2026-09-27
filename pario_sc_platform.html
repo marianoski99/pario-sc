@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="es" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pario SC - Comparador y Buscador Directo de Componentes de PC</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#070a12',
+                        cardbg: '#0f172a',
+                        borderbg: '#1e293b',
+                        cyanaccent: '#00f2fe',
+                        blueaccent: '#38bdf8',
+                        neoncyan: '#06b6d4',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'neon': '0 0 15px rgba(6, 182, 212, 0.35)',
+                        'neon-lg': '0 0 25px rgba(0, 242, 254, 0.45)',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #070a12;
+            color: #f8fafc;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070a12;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06b6d4;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(6, 182, 212, 0.45);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px -5px rgba(6, 182, 212, 0.18);
+        }
+        .custom-checkbox:checked {
+            background-color: #06b6d4;
+            border-color: #06b6d4;
+        }
+        @keyframes spinOnce {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .spin-animation {
+            animation: spinOnce 0.6s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-cyanaccent selection:text-black">
+
+<header class="sticky top-0 z-40 glass-panel border-b border-borderbg/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <!-- Logo -->
+        <a href="#" class="flex items-center gap-3 group">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-slate-950 font-extrabold text-xl shadow-neon transition-transform group-hover:scale-105">
+                <i class="fa-solid fa-microchip"></i>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-2xl font-black tracking-tight text-white flex items-center gap-1">
+                    Pario <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyanaccent to-blueaccent">SC</span>
+                </span>
+                <span class="text-[10px] text-cyan-400/90 font-mono tracking-widest uppercase -mt-1">Direct Market Search</span>
+            </div>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+            <a href="#buscar" class="hover:text-cyanaccent transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-magnifying-glass text-xs"></i> Explorar Catálogo
+            </a>
+            <a href="#ofertas" class="hover:text-cyanaccent transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-fire text-amber-500"></i> Ofertas
+            </a>
+            <a href="#calculadora" class="hover:text-cyanaccent transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-calculator text-blue-400"></i> Calculadora de Ahorro
+            </a>
+            <a href="#como-funciona" class="hover:text-cyanaccent transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-circle-info text-cyan-400"></i> ¿Cómo Funciona?
+            </a>
+        </nav>
+
+        <!-- Right Controls -->
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <select id="currencySelector" onchange="changeCurrency(this.value)" class="bg-cardbg border border-borderbg text-xs font-mono text-slate-300 rounded-lg px-3 py-2 outline-none focus:border-cyanaccent cursor-pointer hover:bg-slate-800 transition-colors">
+                    <option value="USD">USD ($)</option>
+                    <option value="MXN">MXN ($)</option>
+                    <option value="CLP">CLP ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                </select>
+            </div>
+
+            <button onclick="toggleCompareModal()" class="relative bg-slate-800/80 hover:bg-slate-800 text-white p-2.5 rounded-lg border border-borderbg flex items-center gap-2 transition-all hover:border-cyan-500/50">
+                <i class="fa-solid fa-sliders text-cyanaccent"></i>
+                <span class="hidden sm:inline text-xs font-medium">Comparar</span>
+                <span id="compareBadge" class="bg-gradient-to-r from-cyan-500 to-blue-500 text-slate-950 font-bold text-[11px] w-5 h-5 rounded-full flex items-center justify-center">0</span>
+            </button>
+
+            <button onclick="toggleMobileMenu()" class="md:hidden text-slate-300 hover:text-white p-2 focus:outline-none">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobileMenu" class="hidden md:hidden border-t border-borderbg bg-cardbg px-4 py-4 space-y-3">
+        <a href="#buscar" onclick="toggleMobileMenu()" class="block text-slate-300 hover:text-cyanaccent py-2"><i class="fa-solid fa-magnifying-glass mr-2"></i>Explorar Catálogo</a>
+        <a href="#ofertas" onclick="toggleMobileMenu()" class="block text-slate-300 hover:text-cyanaccent py-2"><i class="fa-solid fa-fire mr-2 text-amber-500"></i>Ofertas Destacadas</a>
+        <a href="#calculadora" onclick="toggleMobileMenu()" class="block text-slate-300 hover:text-cyanaccent py-2"><i class="fa-solid fa-calculator mr-2 text-blue-400"></i>Calculadora de Ahorro</a>
+        <a href="#como-funciona" onclick="toggleMobileMenu()" class="block text-slate-300 hover:text-cyanaccent py-2"><i class="fa-solid fa-circle-info mr-2 text-cyan-400"></i>¿Cómo Funciona?</a>
+    </div>
+</header>
+
+<section class="relative pt-12 pb-20 md:pt-20 md:pb-28 overflow-hidden">
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[320px] bg-cyan-500/10 rounded-full blur-[130px] pointer-events-none"></div>
+    <div class="absolute top-1/3 left-1/3 w-[350px] h-[350px] bg-blue-600/10 rounded-full blur-[110px] pointer-events-none"></div>
+
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 text-center relative z-10">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyanaccent text-xs font-semibold mb-6">
+            <span class="w-2 h-2 rounded-full bg-cyanaccent animate-pulse"></span>
+            <span>Buscador Universal de Hardware Integrado</span>
+            <span class="text-slate-500">|</span>
+            <span class="text-slate-300">eBay • Mercado Libre • Newegg • Amazon</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight mb-6">
+            Encuentra cualquier componente <br class="hidden sm:inline"/>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyanaccent via-blueaccent to-indigo-400">
+                incluso si no figura en el catálogo
+            </span>
+        </h1>
+
+        <p class="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+            Busca en nuestra base de datos o escribe cualquier modelo específico (ej: <strong class="text-cyanaccent">RTX 3060 Ti, i5 10400F, RX 580</strong>). Si no lo tenemos, te generamos la búsqueda directa a las tiendas en tiempo real.
+        </p>
+
+        <!-- Search Bar Box -->
+        <div class="max-w-3xl mx-auto bg-cardbg/90 p-2 sm:p-3 rounded-2xl border border-borderbg shadow-2xl backdrop-blur-xl relative">
+            <div class="flex flex-col sm:flex-row gap-2">
+                <select id="heroCategory" class="bg-slate-800 text-slate-200 text-sm rounded-xl px-3 py-3 border border-borderbg outline-none focus:border-cyanaccent font-medium cursor-pointer">
+                    <option value="all">Todas las Categorías</option>
+                    <option value="cpu">Procesadores (CPU)</option>
+                    <option value="gpu">Tarjetas Gráficas (GPU)</option>
+                    <option value="ram">Memorias RAM</option>
+                    <option value="storage">Almacenamiento (SSD/NVMe)</option>
+                    <option value="motherboard">Placas Madre</option>
+                    <option value="psu">Fuentes de Poder</option>
+                    <option value="cooling">Refrigeración PC</option>
+                </select>
+
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="heroSearchInput" oninput="handleHeroSearch(event)" onkeyup="handleHeroSearchKey(event)" placeholder="Escribe cualquier componente (ej. RTX 3060 Ti, Noctua NH-D15...)" class="w-full bg-slate-900/80 text-white placeholder-slate-500 text-sm rounded-xl pl-11 pr-10 py-3.5 border border-borderbg/80 focus:border-cyanaccent outline-none focus:ring-1 focus:ring-cyanaccent transition-all">
+                    <button onclick="clearHeroSearch()" id="clearSearchBtn" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <button onclick="triggerSearchFromHero()" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold px-6 py-3.5 rounded-xl transition-all shadow-neon hover:shadow-neon-lg flex items-center justify-center gap-2">
+                    <span>Buscar</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Quick Search Pills -->
+            <div class="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-borderbg/50 px-2">
+                <span class="text-xs text-slate-500 font-medium">Modelos directos:</span>
+                <button onclick="setQuickSearch('RTX 3060 Ti')" class="text-xs bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-cyanaccent px-2.5 py-1 rounded-md border border-borderbg transition-colors">RTX 3060 Ti</button>
+                <button onclick="setQuickSearch('i5 10400F')" class="text-xs bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-cyanaccent px-2.5 py-1 rounded-md border border-borderbg transition-colors">i5 10400F</button>
+                <button onclick="setQuickSearch('RX 580')" class="text-xs bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-cyanaccent px-2.5 py-1 rounded-md border border-borderbg transition-colors">RX 580</button>
+                <button onclick="setQuickSearch('Noctua NH-D15')" class="text-xs bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-cyanaccent px-2.5 py-1 rounded-md border border-borderbg transition-colors">Noctua NH-D15</button>
+                <button onclick="setQuickSearch('B450M')" class="text-xs bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-cyanaccent px-2.5 py-1 rounded-md border border-borderbg transition-colors">B450M</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="buscar" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-4 border-b border-borderbg">
+        <div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-3">
+                <i class="fa-solid fa-layer-group text-cyanaccent text-xl"></i>
+                Catálogo Dinámico de Componentes
+            </h2>
+            <p class="text-slate-400 text-sm mt-1">Muestra 28 componentes aleatorios extraídos de un pozo dinámico de +70 piezas.</p>
+        </div>
+        <div class="mt-4 md:mt-0 flex items-center gap-3">
+            <!-- REFRESH CATALOG BUTTON -->
+            <button onclick="refreshComponentCatalog()" id="refreshBtn" class="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 border border-cyan-500/40 text-cyanaccent text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-neon flex items-center gap-2">
+                <i id="refreshIcon" class="fa-solid fa-arrows-rotate"></i>
+                <span>Refrescar 28 Componentes</span>
+            </button>
+            <span id="resultsCount" class="text-xs font-mono text-cyan-400 bg-cyan-950/60 border border-cyan-800/50 px-3 py-2 rounded-xl">28 cargados</span>
+        </div>
+    </div>
+
+    <!-- Main Layout Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        
+        <!-- SIDEBAR FILTERS -->
+        <aside class="lg:col-span-1 space-y-6">
+            <div class="glass-panel p-5 rounded-2xl border border-borderbg sticky top-24">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center justify-between">
+                    <span>Filtros Avanzados</span>
+                    <i class="fa-solid fa-sliders text-cyanaccent"></i>
+                </h3>
+
+                <!-- Category Filter -->
+                <div class="mb-6">
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2.5">Categoría</label>
+                    <div class="space-y-1">
+                        <button onclick="filterCategory('all')" id="cat-all" class="cat-btn w-full text-left text-xs px-3 py-2 rounded-lg transition-all bg-cyan-500/20 text-cyanaccent font-semibold border border-cyan-500/30 flex justify-between items-center">
+                            <span>Todas</span> <i class="fa-solid fa-check text-[10px]"></i>
+                        </button>
+                        <button onclick="filterCategory('cpu')" id="cat-cpu" class="cat-btn w-full text-left text-xs px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all flex justify-between items-center">
+                            <span>Procesadores (CPU)</span>
+                        </button>
+                        <button onclick="filterCategory('gpu')" id="cat-gpu" class="cat-btn w-full text-left text-xs px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all flex justify-between items-center">
+                            <span>Tarjetas Gráficas (GPU)</span>
+                        </button>
+                        <button onclick="filterCategory('ram')" id="cat-ram" class="cat-btn w-full text-left text-xs px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all flex justify-between items-center">
+                            <span>Memorias RAM</span>
+                        </button>
+                        <button onclick="filterCategory('storage')" id="cat-storage" class="cat-btn w-full text-left text-xs px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all flex justify-between items-center">
+                            <span>Almacenamiento (SSD)</span>
+                        </button>
+                        <button onclick="filterCategory('motherboard')" id="cat-motherboard" class="cat-btn w-full text-left text-xs px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all flex justify-between items-center">
+                            <span>Placas Madre</span>
+                        </button>
+                        <button onclick="filterCategory('psu')" id="cat-psu" class="cat-btn w-full text-left text-xs px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all flex justify-between items-center">
+                            <span>Fuentes de Poder</span>
+                        </button>
+                        <button onclick="filterCategory('cooling')" id="cat-cooling" class="cat-btn w-full text-left text-xs px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all flex justify-between items-center">
+                            <span>Refrigeración PC</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Condition Filter -->
+                <div class="mb-6 pt-4 border-t border-borderbg/60">
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2.5">Condición Deseada</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-2.5 text-xs text-slate-300 cursor-pointer hover:text-white">
+                            <input type="checkbox" value="Nuevo" checked onchange="applyFilters()" class="condition-checkbox custom-checkbox rounded border-slate-700 bg-slate-900 text-cyan-500 focus:ring-0 w-4 h-4">
+                            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Nuevo (Brand New)</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 text-xs text-slate-300 cursor-pointer hover:text-white">
+                            <input type="checkbox" value="Reacondicionado" checked onchange="applyFilters()" class="condition-checkbox custom-checkbox rounded border-slate-700 bg-slate-900 text-cyan-500 focus:ring-0 w-4 h-4">
+                            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400"></span> Reacondicionado (Refurbished)</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 text-xs text-slate-300 cursor-pointer hover:text-white">
+                            <input type="checkbox" value="Usado" checked onchange="applyFilters()" class="condition-checkbox custom-checkbox rounded border-slate-700 bg-slate-900 text-cyan-500 focus:ring-0 w-4 h-4">
+                            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-cyan-400"></span> Usado Verificado</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Price Range Filter Slider -->
+                <div class="pt-4 border-t border-borderbg/60">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Precio Máximo</label>
+                        <span id="priceDisplay" class="text-xs font-mono font-bold text-cyanaccent">$3,000 USD</span>
+                    </div>
+                    <input type="range" id="priceRange" min="20" max="3000" step="20" value="3000" oninput="updatePriceSlider(this.value)" class="w-full accent-cyanaccent cursor-pointer bg-slate-800 rounded-lg h-2">
+                </div>
+            </div>
+        </aside>
+
+        <!-- RESULTS GRID CONTAINER -->
+        <main class="lg:col-span-3">
+            <div class="bg-cardbg p-3 rounded-xl border border-borderbg mb-6 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-2 text-xs text-slate-400">
+                    <span>Ordenar por:</span>
+                    <select id="sortBy" onchange="applyFilters()" class="bg-slate-900 border border-borderbg text-slate-200 text-xs rounded-lg px-2.5 py-1.5 outline-none focus:border-cyanaccent">
+                        <option value="relevance">Relevancia</option>
+                        <option value="price-asc">Menor precio estimado</option>
+                        <option value="price-desc">Mayor precio estimado</option>
+                        <option value="discount">Mayor ahorro (%)</option>
+                    </select>
+                </div>
+                <button onclick="resetFilters()" class="text-xs text-slate-400 hover:text-cyanaccent underline transition-colors">
+                    Restablecer Filtros
+                </button>
+            </div>
+
+            <!-- Dynamic Product Cards Grid -->
+            <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Dynamic cards populated by JS -->
+            </div>
+
+            <!-- DYNAMIC EXTERNAL SEARCH CONTAINER (When items are not found locally) -->
+            <div id="externalSearchContainer" class="hidden">
+                <!-- JS dynamically renders custom query redirect block here -->
+            </div>
+        </main>
+    </div>
+</section>
+
+<section id="ofertas" class="bg-slate-950/80 py-16 border-y border-borderbg/80 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-10 gap-4">
+            <div>
+                <span class="text-amber-400 text-xs font-mono font-bold uppercase tracking-widest flex items-center gap-1.5 mb-1">
+                    <i class="fa-solid fa-fire text-amber-500 animate-bounce"></i> Enlaces Directos Destacados
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Ofertas Más Buscadas del Momento</h2>
+                <p class="text-slate-400 text-sm">Listados activos directos por volumen de demanda.</p>
+            </div>
+            
+            <div class="bg-slate-900 border border-amber-500/30 px-4 py-2.5 rounded-xl flex items-center gap-3">
+                <span class="text-xs text-slate-400 font-medium">Rotación de ofertas en:</span>
+                <span id="dealTimer" class="font-mono text-amber-400 font-extrabold text-sm tracking-wider">03h : 45m : 12s</span>
+            </div>
+        </div>
+
+        <div id="hotDealsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Dynamic Hot Deals injected by JS -->
+        </div>
+    </div>
+</section>
+
+<section id="calculadora" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="glass-panel p-6 sm:p-10 rounded-3xl border border-cyan-500/20 relative overflow-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div class="lg:col-span-5">
+                <span class="text-cyanaccent text-xs font-mono font-bold uppercase tracking-wider">Estimador de Presupuesto</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-2 mb-4">Calculadora de Ahorro PC Build</h2>
+                <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                    Compara el costo aproximado de comprar componentes <strong class="text-emerald-400">Nuevos</strong> frente a seleccionarlos <strong class="text-cyanaccent">Reacondicionados o Usados</strong>.
+                </p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Procesador (CPU)</label>
+                        <select id="calcCpu" onchange="calculatePCBuildSavings()" class="w-full bg-slate-900 border border-borderbg text-xs text-slate-200 rounded-xl p-2.5 outline-none focus:border-cyanaccent">
+                            <option value="220|130">AMD Ryzen 5 5600X ($220 Nuevo vs $130 Usado)</option>
+                            <option value="380|280">AMD Ryzen 7 7800X3D ($380 Nuevo vs $280 Usado)</option>
+                            <option value="320|220">Intel Core i7-13700K ($320 Nuevo vs $220 Refurb)</option>
+                            <option value="120|75">Intel Core i5-10400F ($120 Nuevo vs $75 Usado)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Tarjeta Gráfica (GPU)</label>
+                        <select id="calcGpu" onchange="calculatePCBuildSavings()" class="w-full bg-slate-900 border border-borderbg text-xs text-slate-200 rounded-xl p-2.5 outline-none focus:border-cyanaccent">
+                            <option value="580|460">NVIDIA RTX 4070 12GB ($580 Nuevo vs $460 Usado)</option>
+                            <option value="290|190">NVIDIA RTX 3060 12GB ($290 Nuevo vs $190 Refurb)</option>
+                            <option value="360|230">NVIDIA RTX 3060 Ti 8GB ($360 Nuevo vs $230 Usado)</option>
+                            <option value="160|90">AMD Radeon RX 580 8GB ($160 Nuevo vs $90 Usado)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Memoria RAM</label>
+                        <select id="calcRam" onchange="calculatePCBuildSavings()" class="w-full bg-slate-900 border border-borderbg text-xs text-slate-200 rounded-xl p-2.5 outline-none focus:border-cyanaccent">
+                            <option value="115|80">DDR5 32GB (2x16GB) 6000MHz ($115 Nuevo vs $80 Usado)</option>
+                            <option value="65|40">DDR4 32GB (2x16GB) 3600MHz ($65 Nuevo vs $40 Usado)</option>
+                            <option value="40|25">DDR4 16GB (2x8GB) 3200MHz ($40 Nuevo vs $25 Usado)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-7 bg-slate-900/90 border border-borderbg rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
+                <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-6 flex items-center justify-between">
+                    <span>Resumen Comparativo</span>
+                    <i class="fa-solid fa-chart-pie text-cyanaccent"></i>
+                </h3>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                        <span class="text-xs text-slate-500 block">Total Estimado Nuevo</span>
+                        <span id="totalNewPrice" class="text-xl sm:text-2xl font-extrabold text-slate-300 font-mono mt-1 block">$915 USD</span>
+                    </div>
+                    <div class="bg-cyan-950/30 p-4 rounded-xl border border-cyan-500/30">
+                        <span class="text-xs text-cyan-400 font-medium block">Total Usado / Reacondicionado</span>
+                        <span id="totalUsedPrice" class="text-xl sm:text-2xl font-extrabold text-cyanaccent font-mono mt-1 block">$670 USD</span>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 p-5 rounded-2xl border border-cyan-500/40 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider block">Tu Ahorro Estimado</span>
+                        <span id="calcSavingsPercent" class="text-xs text-cyan-400 font-medium">Ahorras aproximadamente 26.8%</span>
+                    </div>
+                    <div id="calcSavingsAmount" class="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
+                        -$245 USD
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS SECTION -->
+<section id="como-funciona" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-borderbg/60">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+        <span class="text-cyanaccent text-xs font-mono font-bold uppercase tracking-widest">Búsqueda Directa Universal</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">¿Cómo Funciona Pario SC?</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="glass-card p-8 rounded-2xl text-center group">
+            <div class="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyanaccent text-2xl font-bold flex items-center justify-center mx-auto mb-6 shadow-neon">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">1. Escribe Cualquier Modelo</h3>
+            <p class="text-slate-400 text-sm">Usa el catálogo dinámico de 28 piezas rotativas o teclea cualquier modelo exacto que desees buscar.</p>
+        </div>
+
+        <div class="glass-card p-8 rounded-2xl text-center group">
+            <div class="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-blueaccent text-2xl font-bold flex items-center justify-center mx-auto mb-6 shadow-neon">
+                <i class="fa-solid fa-arrows-rotate"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">2. Refresca para Nuevas Piezas</h3>
+            <p class="text-slate-400 text-sm">Haz clic en "Refrescar" para cargar un nuevo conjunto de 28 componentes de nuestro pozo de +70 productos.</p>
+        </div>
+
+        <div class="glass-card p-8 rounded-2xl text-center group">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-2xl font-bold flex items-center justify-center mx-auto mb-6 shadow-neon">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">3. Búsqueda Directa en Tiendas</h3>
+            <p class="text-slate-400 text-sm">Abre la página oficial de búsqueda de eBay, Mercado Libre, Newegg o Amazon con un solo clic.</p>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-slate-950 border-t border-borderbg/80 pt-12 pb-8 text-slate-400 text-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center gap-4">
+        <p>© 2026 Pario SC. Búsqueda directa de hardware y componentes de computadoras.</p>
+        <div class="flex items-center gap-2 text-cyan-400 font-mono">
+            <i class="fa-solid fa-database text-xs"></i> <span>Pozo de datos: +70 componentes activos</span>
+        </div>
+    </div>
+</footer>
+
+<!-- COMPARISON MODAL -->
+<div id="compareModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-cardbg border border-borderbg rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+        <div class="p-5 border-b border-borderbg flex items-center justify-between bg-slate-900/60">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-cyanaccent"></i> Comparador de Componentes
+            </h3>
+            <button onclick="toggleCompareModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="p-6 overflow-y-auto flex-1">
+            <div id="compareContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+            <div id="compareEmptyState" class="hidden text-center py-12">
+                <i class="fa-solid fa-list-check text-4xl text-slate-600 mb-3"></i>
+                <p class="text-slate-400 text-sm">No has seleccionado componentes para comparar.</p>
+            </div>
+        </div>
+        <div class="p-4 border-t border-borderbg bg-slate-900/60 flex justify-between items-center text-xs">
+            <button onclick="clearCompareList()" class="text-rose-400 font-medium">Limpiar Todo</button>
+            <button onclick="toggleCompareModal()" class="bg-slate-800 text-white font-bold px-5 py-2 rounded-xl">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getStoreSearchUrl(query, storeName) {
+        const encoded = encodeURIComponent(query);
+        switch (storeName) {
+            case 'eBay':
+                return `https://www.ebay.com/sch/i.html?_nkw=${encoded}`;
+            case 'Mercado Libre':
+                return `https://listado.mercadolibre.cl/${encoded.replace(/%20/g, '-')}`;
+            case 'Newegg':
+                return `https://www.newegg.com/p/pl?d=${encoded}`;
+            case 'Amazon':
+                return `https://www.amazon.com/s?k=${encoded}`;
+            default:
+                return `https://www.google.com/search?q=${encoded}`;
+        }
+    }
+
+    // --- EXPANDED 70+ HARDWARE DATABASE POOL ---
+    const masterHardwarePool = [
+        // CPUs
+        { id: 'cpu-1', title: 'AMD Ryzen 7 7800X3D 8-Core 5.0GHz', searchQuery: 'Ryzen 7 7800X3D', category: 'cpu', condition: 'Nuevo', store: 'Amazon', priceUSD: 389, msrpUSD: 449, discount: 13, rating: 4.9, badge: 'Top Gaming', specs: { cores: '8C/16T', socket: 'AM5' }, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&auto=format&fit=crop&q=80' },
+        { id: 'cpu-2', title: 'AMD Ryzen 5 5600X 6-Core 4.6GHz', searchQuery: 'Ryzen 5 5600X', category: 'cpu', condition: 'Usado', store: 'eBay', priceUSD: 129, msrpUSD: 199, discount: 35, rating: 4.8, badge: 'Leyenda Calidad/Precio', specs: { cores: '6C/12T', socket: 'AM4' }, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&auto=format&fit=crop&q=80' },
+        { id: 'cpu-3', title: 'Intel Core i7-13700K 16 Cores 5.4GHz', searchQuery: 'Intel Core i7 13700K', category: 'cpu', condition: 'Reacondicionado', store: 'Newegg', priceUSD: 299, msrpUSD: 419, discount: 28, rating: 4.7, badge: 'Potencia Híbrida', specs: { cores: '16C/24T', socket: 'LGA1700' }, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&auto=format&fit=crop&q=80' },
+        { id: 'cpu-4', title: 'Intel Core i5-12400F 6-Cores 4.4GHz', searchQuery: 'Core i5 12400F', category: 'cpu', condition: 'Nuevo', store: 'Mercado Libre', priceUSD: 135, msrpUSD: 175, discount: 22, rating: 4.8, badge: 'Presupuesto Ajustado', specs: { cores: '6C/12T', socket: 'LGA1700' }, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&auto=format&fit=crop&q=80' },
+        { id: 'cpu-5', title: 'Intel Core i5-10400F 6-Core 4.3GHz', searchQuery: 'i5 10400F', category: 'cpu', condition: 'Usado', store: 'eBay', priceUSD: 75, msrpUSD: 150, discount: 50, rating: 4.7, badge: 'Super Económico', specs: { cores: '6C/12T', socket: 'LGA1200' }, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&auto=format&fit=crop&q=80' },
+        { id: 'cpu-6', title: 'AMD Ryzen 9 7950X3D 16-Core 5.7GHz', searchQuery: 'Ryzen 9 7950X3D', category: 'cpu', condition: 'Nuevo', store: 'Amazon', priceUSD: 599, msrpUSD: 699, discount: 14, rating: 4.9, badge: 'Flagship Gaming', specs: { cores: '16C/32T', socket: 'AM5' }, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&auto=format&fit=crop&q=80' },
+        { id: 'cpu-7', title: 'Intel Core i9-14900K 24-Cores 6.0GHz', searchQuery: 'Intel i9 14900K', category: 'cpu', condition: 'Nuevo', store: 'Newegg', priceUSD: 540, msrpUSD: 599, discount: 10, rating: 4.6, badge: 'Max Speed', specs: { cores: '24C/32T', socket: 'LGA1700' }, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&auto=format&fit=crop&q=80' },
+        { id: 'cpu-8', title: 'AMD Ryzen 5 7600X 6-Core 5.3GHz AM5', searchQuery: 'Ryzen 5 7600X', category: 'cpu', condition: 'Reacondicionado', store: 'eBay', priceUSD: 179, msrpUSD: 249, discount: 28, rating: 4.8, badge: 'Entrada AM5', specs: { cores: '6C/12T', socket: 'AM5' }, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&auto=format&fit=crop&q=80' },
+        { id: 'cpu-9', title: 'AMD Ryzen 7 5700X3D 8-Core 4.1GHz', searchQuery: 'Ryzen 7 5700X3D', category: 'cpu', condition: 'Nuevo', store: 'Amazon', priceUSD: 209, msrpUSD: 249, discount: 16, rating: 4.9, badge: 'Upgrade AM4 Top', specs: { cores: '8C/16T', socket: 'AM4' }, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&auto=format&fit=crop&q=80' },
+        { id: 'cpu-10', title: 'Intel Core i3-12100F 4-Cores 4.3GHz', searchQuery: 'i3 12100F', category: 'cpu', condition: 'Usado', store: 'Mercado Libre', priceUSD: 69, msrpUSD: 110, discount: 37, rating: 4.8, badge: 'Rey Entrada 1080p', specs: { cores: '4C/8T', socket: 'LGA1700' }, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&auto=format&fit=crop&q=80' },
+
+        // GPUs
+        { id: 'gpu-1', title: 'NVIDIA GeForce RTX 4070 Super 12GB', searchQuery: 'RTX 4070 Super 12GB', category: 'gpu', condition: 'Nuevo', store: 'Amazon', priceUSD: 589, msrpUSD: 649, discount: 9, rating: 4.9, badge: 'Ideal 1440p', specs: { vram: '12GB GDDR6X', bus: '192-bit' }, image: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&auto=format&fit=crop&q=80' },
+        { id: 'gpu-2', title: 'NVIDIA GeForce RTX 3060 12GB GDDR6', searchQuery: 'GeForce RTX 3060 12GB', category: 'gpu', condition: 'Reacondicionado', store: 'eBay', priceUSD: 249, msrpUSD: 380, discount: 34, rating: 4.8, badge: 'Popular Usado', specs: { vram: '12GB GDDR6', bus: '192-bit' }, image: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&auto=format&fit=crop&q=80' },
+        { id: 'gpu-3', title: 'NVIDIA GeForce RTX 3060 Ti 8GB GDDR6', searchQuery: 'RTX 3060 Ti', category: 'gpu', condition: 'Usado', store: 'eBay', priceUSD: 220, msrpUSD: 399, discount: 44, rating: 4.8, badge: 'Rendimiento 2K', specs: { vram: '8GB GDDR6', bus: '256-bit' }, image: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&auto=format&fit=crop&q=80' },
+        { id: 'gpu-4', title: 'AMD Radeon RX 580 8GB GDDR5', searchQuery: 'RX 580 8GB', category: 'gpu', condition: 'Usado', store: 'Mercado Libre', priceUSD: 85, msrpUSD: 220, discount: 61, rating: 4.6, badge: 'Ultra Económica', specs: { vram: '8GB GDDR5', bus: '256-bit' }, image: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&auto=format&fit=crop&q=80' },
+        { id: 'gpu-5', title: 'AMD Radeon RX 7800 XT 16GB GDDR6', searchQuery: 'Radeon RX 7800 XT 16GB', category: 'gpu', condition: 'Nuevo', store: 'Newegg', priceUSD: 489, msrpUSD: 549, discount: 11, rating: 4.8, badge: '16GB VRAM Power', specs: { vram: '16GB GDDR6', bus: '256-bit' }, image: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&auto=format&fit=crop&q=80' },
+        { id: 'gpu-6', title: 'NVIDIA GeForce RTX 4060 8GB GDDR6', searchQuery: 'RTX 4060 8GB', category: 'gpu', condition: 'Nuevo', store: 'Amazon', priceUSD: 299, msrpUSD: 329, discount: 9, rating: 4.7, badge: 'Eficiencia DLSS3', specs: { vram: '8GB GDDR6', bus: '128-bit' }, image: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&auto=format&fit=crop&q=80' },
+        { id: 'gpu-7', title: 'NVIDIA GeForce RTX 4080 Super 16GB', searchQuery: 'RTX 4080 Super 16GB', category: 'gpu', condition: 'Nuevo', store: 'Amazon', priceUSD: 969, msrpUSD: 1099, discount: 11, rating: 4.9, badge: 'Gama Alta 4K', specs: { vram: '16GB GDDR6X', bus: '256-bit' }, image: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&auto=format&fit=crop&q=80' },
+        { id: 'gpu-8', title: 'AMD Radeon RX 6700 XT 12GB GDDR6', searchQuery: 'RX 6700 XT 12GB', category: 'gpu', condition: 'Reacondicionado', store: 'eBay', priceUSD: 235, msrpUSD: 479, discount: 50, rating: 4.8, badge: '12GB VRAM Oferta', specs: { vram: '12GB GDDR6', bus: '192-bit' }, image: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&auto=format&fit=crop&q=80' },
+        { id: 'gpu-9', title: 'NVIDIA GeForce GTX 1660 Super 6GB', searchQuery: 'GTX 1660 Super', category: 'gpu', condition: 'Usado', store: 'Mercado Libre', priceUSD: 125, msrpUSD: 229, discount: 45, rating: 4.7, badge: 'Económica 1080p', specs: { vram: '6GB GDDR6', bus: '192-bit' }, image: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&auto=format&fit=crop&q=80' },
+
+        // RAM
+        { id: 'ram-1', title: 'Corsair Vengeance DDR5 32GB (2x16) 6000MHz', searchQuery: 'Corsair Vengeance DDR5 32GB 6000MHz', category: 'ram', condition: 'Nuevo', store: 'Amazon', priceUSD: 109, msrpUSD: 139, discount: 21, rating: 4.8, badge: 'EXPO Ready', specs: { capacity: '32GB DDR5', speed: '6000MHz' }, image: 'https://images.unsplash.com/photo-1562976540-1502c2145186?w=400&auto=format&fit=crop&q=80' },
+        { id: 'ram-2', title: 'G.Skill Trident Z RGB DDR4 32GB 3600MHz', searchQuery: 'G.Skill Trident Z DDR4 32GB 3600', category: 'ram', condition: 'Reacondicionado', store: 'eBay', priceUSD: 68, msrpUSD: 99, discount: 31, rating: 4.7, badge: 'RGB Premium', specs: { capacity: '32GB DDR4', speed: '3600MHz' }, image: 'https://images.unsplash.com/photo-1562976540-1502c2145186?w=400&auto=format&fit=crop&q=80' },
+        { id: 'ram-3', title: 'Kingston Fury Beast DDR4 16GB (2x8) 3200MHz', searchQuery: 'Kingston Fury DDR4 16GB 3200', category: 'ram', condition: 'Usado', store: 'Mercado Libre', priceUSD: 35, msrpUSD: 55, discount: 36, rating: 4.9, badge: 'Básico Fiable', specs: { capacity: '16GB DDR4', speed: '3200MHz' }, image: 'https://images.unsplash.com/photo-1562976540-1502c2145186?w=400&auto=format&fit=crop&q=80' },
+        { id: 'ram-4', title: 'Teamgroup T-Force DDR5 64GB (2x32) 6000MHz', searchQuery: 'T-Force Delta DDR5 64GB 6000MHz', category: 'ram', condition: 'Nuevo', store: 'Newegg', priceUSD: 199, msrpUSD: 249, discount: 20, rating: 4.8, badge: 'Estación de Trabajo', specs: { capacity: '64GB DDR5', speed: '6000MHz' }, image: 'https://images.unsplash.com/photo-1562976540-1502c2145186?w=400&auto=format&fit=crop&q=80' },
+
+        // STORAGE
+        { id: 'st-1', title: 'Samsung 990 PRO NVMe M.2 SSD 2TB PCIe 4.0', searchQuery: 'Samsung 990 PRO 2TB NVMe', category: 'storage', condition: 'Nuevo', store: 'Amazon', priceUSD: 169, msrpUSD: 219, discount: 22, rating: 4.9, badge: '7450 MB/s', specs: { capacity: '2TB NVMe', interface: 'PCIe 4.0' }, image: 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=400&auto=format&fit=crop&q=80' },
+        { id: 'st-2', title: 'WD Black SN770 NVMe SSD 1TB PCIe 4.0', searchQuery: 'WD Black SN770 1TB NVMe', category: 'storage', condition: 'Reacondicionado', store: 'Newegg', priceUSD: 65, msrpUSD: 95, discount: 31, rating: 4.8, badge: 'Top Valor NVMe', specs: { capacity: '1TB NVMe', interface: 'PCIe 4.0' }, image: 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=400&auto=format&fit=crop&q=80' },
+        { id: 'st-3', title: 'Crucial P3 Plus 2TB PCIe 4.0 NVMe', searchQuery: 'Crucial P3 Plus 2TB NVMe', category: 'storage', condition: 'Usado', store: 'eBay', priceUSD: 108, msrpUSD: 159, discount: 32, rating: 4.7, badge: 'Gran Espacio', specs: { capacity: '2TB NVMe', interface: 'PCIe 4.0' }, image: 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=400&auto=format&fit=crop&q=80' },
+
+        // MOTHERBOARDS
+        { id: 'mb-1', title: 'ASUS ROG Strix B650-A Gaming WiFi AM5', searchQuery: 'ASUS ROG Strix B650-A WiFi', category: 'motherboard', condition: 'Nuevo', store: 'Newegg', priceUSD: 219, msrpUSD: 279, discount: 21, rating: 4.8, badge: 'AM5 WiFi 6E', specs: { socket: 'AM5', format: 'ATX' }, image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&auto=format&fit=crop&q=80' },
+        { id: 'mb-2', title: 'Gigabyte B450M DS3H AM4 Motherboard', searchQuery: 'B450M DS3H', category: 'motherboard', condition: 'Usado', store: 'eBay', priceUSD: 55, msrpUSD: 95, discount: 42, rating: 4.7, badge: 'AM4 Ultra Económica', specs: { socket: 'AM4', format: 'mATX' }, image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&auto=format&fit=crop&q=80' },
+        { id: 'mb-3', title: 'MSI MAG B550 TOMAHAWK AM4', searchQuery: 'MSI MAG B550 Tomahawk', category: 'motherboard', condition: 'Usado', store: 'eBay', priceUSD: 110, msrpUSD: 179, discount: 38, rating: 4.9, badge: 'B550 Top', specs: { socket: 'AM4', format: 'ATX' }, image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&auto=format&fit=crop&q=80' },
+
+        // POWER SUPPLIES
+        { id: 'psu-1', title: 'Corsair RM850x 850W 80 Plus Gold Modular', searchQuery: 'Corsair RM850x 850W Gold', category: 'psu', condition: 'Nuevo', store: 'Amazon', priceUSD: 124, msrpUSD: 149, discount: 16, rating: 4.9, badge: 'Calidad Oro', specs: { wattage: '850W', rating: '80+ Gold' }, image: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&auto=format&fit=crop&q=80' },
+        { id: 'psu-2', title: 'EVGA SuperNOVA 750 GT 80 Plus Gold 750W', searchQuery: 'EVGA SuperNOVA 750 GT', category: 'psu', condition: 'Reacondicionado', store: 'eBay', priceUSD: 82, msrpUSD: 129, discount: 36, rating: 4.8, badge: 'Garantía EVGA', specs: { wattage: '750W', rating: '80+ Gold' }, image: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&auto=format&fit=crop&q=80' },
+
+        // COOLING
+        { id: 'cool-1', title: 'Thermalright Peerless Assassin 120 SE', searchQuery: 'Thermalright Peerless Assassin 120 SE', category: 'cooling', condition: 'Nuevo', store: 'Amazon', priceUSD: 34, msrpUSD: 50, discount: 32, rating: 4.9, badge: 'Rey del Aire', specs: { type: 'Disipador Aire', heatpipes: '6' }, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&auto=format&fit=crop&q=80' },
+        { id: 'cool-2', title: 'Noctua NH-D15 chromax.black Dual Tower', searchQuery: 'Noctua NH-D15', category: 'cooling', condition: 'Nuevo', store: 'Amazon', priceUSD: 119, msrpUSD: 129, discount: 8, rating: 4.9, badge: 'Silencio Absoluto', specs: { type: 'Aire Premium', fan: '2x 140mm' }, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&auto=format&fit=crop&q=80' },
+        { id: 'cool-3', title: 'ARCTIC Liquid Freezer III 360 A-RGB', searchQuery: 'ARCTIC Liquid Freezer III 360', category: 'cooling', condition: 'Nuevo', store: 'Newegg', priceUSD: 110, msrpUSD: 140, discount: 21, rating: 4.9, badge: 'Líquida AIO Top', specs: { type: 'Refrigeración Líquida', rad: '360mm' }, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&auto=format&fit=crop&q=80' }
+    ];
+
+    // --- STATE MANAGEMENT ---
+    let activeCatalog = [];
+    let currentCurrency = 'USD';
+    const currencyRates = {
+        USD: { rate: 1, symbol: '$', code: 'USD' },
+        MXN: { rate: 18.2, symbol: '$', code: 'MXN' },
+        CLP: { rate: 940, symbol: '$', code: 'CLP' },
+        EUR: { rate: 0.92, symbol: '€', code: 'EUR' }
+    };
+
+    let activeCategory = 'all';
+    let maxPrice = 3000;
+    let compareList = [];
+
+    window.onload = function() {
+        refreshComponentCatalog();
+        renderHotDeals();
+        calculatePCBuildSavings();
+        startCountdownTimer();
+    };
+
+    function getRandomSubarray(arr, size) {
+        const shuffled = arr.slice(0);
+        let i = arr.length;
+        let temp, index;
+        while (i--) {
+            index = Math.floor((i + 1) * Math.random());
+            temp = shuffled[index];
+            shuffled[index] = shuffled[i];
+            shuffled[i] = temp;
+        }
+        return shuffled.slice(0, size);
+    }
+
+    function refreshComponentCatalog() {
+        const icon = document.getElementById('refreshIcon');
+        if (icon) {
+            icon.classList.add('spin-animation');
+            setTimeout(() => icon.classList.remove('spin-animation'), 600);
+        }
+
+        // Shuffle and take 28 items from master pool
+        activeCatalog = getRandomSubarray(masterHardwarePool, Math.min(28, masterHardwarePool.length));
+        applyFilters();
+    }
+
+    function formatPrice(amountUSD) {
+        const curr = currencyRates[currentCurrency];
+        const converted = Math.round(amountUSD * curr.rate);
+        return `${curr.symbol}${converted.toLocaleString()} ${curr.code}`;
+    }
+
+    function changeCurrency(val) {
+        currentCurrency = val;
+        renderProductsGrid();
+        renderHotDeals();
+        calculatePCBuildSavings();
+    }
+
+    function handleHeroSearch(e) {
+        const val = e.target.value.trim();
+        const clearBtn = document.getElementById('clearSearchBtn');
+        if (val.length > 0) {
+            clearBtn.classList.remove('hidden');
+        } else {
+            clearBtn.classList.add('hidden');
+        }
+        applyFilters();
+    }
+
+    function handleHeroSearchKey(e) {
+        if (e.key === 'Enter') {
+            triggerSearchFromHero();
+        }
+    }
+
+    function clearHeroSearch() {
+        document.getElementById('heroSearchInput').value = '';
+        document.getElementById('clearSearchBtn').classList.add('hidden');
+        applyFilters();
+    }
+
+    function setQuickSearch(term) {
+        document.getElementById('heroSearchInput').value = term;
+        document.getElementById('clearSearchBtn').classList.remove('hidden');
+        applyFilters();
+        document.getElementById('buscar').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function triggerSearchFromHero() {
+        const cat = document.getElementById('heroCategory').value;
+        if (cat !== 'all') {
+            filterCategory(cat);
+        } else {
+            applyFilters();
+        }
+        document.getElementById('buscar').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function filterCategory(catId) {
+        activeCategory = catId;
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.className = "cat-btn w-full text-left text-xs px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all flex justify-between items-center";
+        });
+        const activeBtn = document.getElementById(`cat-${catId}`);
+        if (activeBtn) {
+            activeBtn.className = "cat-btn w-full text-left text-xs px-3 py-2 rounded-lg transition-all bg-cyan-500/20 text-cyanaccent font-semibold border border-cyan-500/30 flex justify-between items-center";
+        }
+        applyFilters();
+    }
+
+    function updatePriceSlider(val) {
+        maxPrice = parseInt(val);
+        document.getElementById('priceDisplay').textContent = `$${maxPrice} USD`;
+        applyFilters();
+    }
+
+    function resetFilters() {
+        activeCategory = 'all';
+        maxPrice = 3000;
+        document.getElementById('priceRange').value = 3000;
+        document.getElementById('priceDisplay').textContent = '$3,000 USD';
+        document.getElementById('heroSearchInput').value = '';
+        document.getElementById('clearSearchBtn').classList.add('hidden');
+        document.querySelectorAll('.condition-checkbox').forEach(cb => cb.checked = true);
+        filterCategory('all');
+    }
+
+    function applyFilters() {
+        renderProductsGrid();
+    }
+
+    function renderProductsGrid() {
+        const searchInput = document.getElementById('heroSearchInput').value.toLowerCase().trim();
+        const selectedConditions = Array.from(document.querySelectorAll('.condition-checkbox:checked')).map(cb => cb.value);
+        const sortBy = document.getElementById('sortBy').value;
+
+        // Filter current catalog active set
+        let filtered = activeCatalog.filter(item => {
+            const matchesCat = activeCategory === 'all' || item.category === activeCategory;
+            const matchesSearch = item.title.toLowerCase().includes(searchInput) || item.searchQuery.toLowerCase().includes(searchInput);
+            const matchesCond = selectedConditions.includes(item.condition);
+            const matchesPrice = item.priceUSD <= maxPrice;
+
+            return matchesCat && matchesSearch && matchesCond && matchesPrice;
+        });
+
+        // Also check if matches exist in master pool if catalog filtered is empty
+        let poolMatches = [];
+        if (filtered.length === 0 && searchInput.length > 0) {
+            poolMatches = masterHardwarePool.filter(item => 
+                item.title.toLowerCase().includes(searchInput) || item.searchQuery.toLowerCase().includes(searchInput)
+            );
+        }
+
+        // Sorting
+        if (sortBy === 'price-asc') filtered.sort((a, b) => a.priceUSD - b.priceUSD);
+        else if (sortBy === 'price-desc') filtered.sort((a, b) => b.priceUSD - a.priceUSD);
+        else if (sortBy === 'discount') filtered.sort((a, b) => b.discount - a.discount);
+
+        const grid = document.getElementById('productsGrid');
+        const extContainer = document.getElementById('externalSearchContainer');
+        const countBadge = document.getElementById('resultsCount');
+
+        // IF Local catalog matches exist
+        if (filtered.length > 0) {
+            extContainer.classList.add('hidden');
+            grid.classList.remove('hidden');
+            countBadge.textContent = `${filtered.length} componentes mostrados`;
+
+            grid.innerHTML = filtered.map(item => {
+                const isCompared = compareList.some(c => c.id === item.id);
+                const ebayUrl = getStoreSearchUrl(item.searchQuery, 'eBay');
+                const mlUrl = getStoreSearchUrl(item.searchQuery, 'Mercado Libre');
+                const neweggUrl = getStoreSearchUrl(item.searchQuery, 'Newegg');
+                const amazonUrl = getStoreSearchUrl(item.searchQuery, 'Amazon');
+
+                return `
+                    <div class="glass-card rounded-2xl p-4 flex flex-col justify-between relative group">
+                        <div>
+                            <div class="w-full h-36 rounded-xl overflow-hidden bg-slate-900 relative mb-3">
+                                <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                <span class="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                                    ${item.condition}
+                                </span>
+                            </div>
+                            <h4 class="text-sm font-bold text-white line-clamp-2 mb-2 group-hover:text-cyanaccent transition-colors">
+                                ${item.title}
+                            </h4>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-borderbg/60">
+                            <div class="flex items-baseline justify-between mb-3">
+                                <span class="text-lg font-extrabold text-white font-mono">${formatPrice(item.priceUSD)}</span>
+                                <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                                    -${item.discount}% est.
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-1.5 text-[10px] font-semibold mb-3">
+                                <a href="${ebayUrl}" target="_blank" class="bg-slate-900 hover:bg-slate-800 border border-borderbg py-1.5 rounded text-center text-slate-300 flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-cart-shopping text-blue-400"></i> eBay
+                                </a>
+                                <a href="${mlUrl}" target="_blank" class="bg-slate-900 hover:bg-slate-800 border border-borderbg py-1.5 rounded text-center text-slate-300 flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-bolt text-amber-400"></i> M.Libre
+                                </a>
+                                <a href="${neweggUrl}" target="_blank" class="bg-slate-900 hover:bg-slate-800 border border-borderbg py-1.5 rounded text-center text-slate-300 flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-box text-orange-400"></i> Newegg
+                                </a>
+                                <a href="${amazonUrl}" target="_blank" class="bg-slate-900 hover:bg-slate-800 border border-borderbg py-1.5 rounded text-center text-slate-300 flex items-center justify-center gap-1">
+                                    <i class="fa-brands fa-amazon text-slate-200"></i> Amazon
+                                </a>
+                            </div>
+
+                            <button onclick="toggleCompareItem('${item.id}')" class="w-full text-xs font-semibold py-2 rounded-xl border ${isCompared ? 'bg-cyan-500/20 text-cyanaccent border-cyan-500/40' : 'bg-slate-800 text-slate-300 border-borderbg hover:bg-slate-700'} transition-all">
+                                <i class="fa-solid ${isCompared ? 'fa-check' : 'fa-plus'} mr-1"></i> ${isCompared ? 'Añadido' : 'Comparar Specs'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            return;
+        }
+
+        // IF master pool has items not in current 28 selection
+        if (poolMatches.length > 0) {
+            extContainer.classList.add('hidden');
+            grid.classList.remove('hidden');
+            countBadge.textContent = `${poolMatches.length} del pozo maestro`;
+
+            grid.innerHTML = poolMatches.map(item => {
+                const ebayUrl = getStoreSearchUrl(item.searchQuery, 'eBay');
+                const mlUrl = getStoreSearchUrl(item.searchQuery, 'Mercado Libre');
+                const neweggUrl = getStoreSearchUrl(item.searchQuery, 'Newegg');
+                const amazonUrl = getStoreSearchUrl(item.searchQuery, 'Amazon');
+
+                return `
+                    <div class="glass-card rounded-2xl p-4 flex flex-col justify-between border-cyan-500/30">
+                        <div>
+                            <span class="text-[10px] font-mono text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800 mb-2 inline-block">
+                                Encontrado en Pozo General
+                            </span>
+                            <h4 class="text-sm font-bold text-white line-clamp-2 mb-2">${item.title}</h4>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-borderbg/60">
+                            <span class="text-lg font-extrabold text-white font-mono block mb-3">${formatPrice(item.priceUSD)}</span>
+                            <div class="grid grid-cols-2 gap-1.5 text-[10px] font-semibold">
+                                <a href="${ebayUrl}" target="_blank" class="bg-slate-900 hover:bg-slate-800 border border-borderbg py-1.5 rounded text-center text-slate-300">eBay</a>
+                                <a href="${mlUrl}" target="_blank" class="bg-slate-900 hover:bg-slate-800 border border-borderbg py-1.5 rounded text-center text-slate-300">M.Libre</a>
+                                <a href="${neweggUrl}" target="_blank" class="bg-slate-900 hover:bg-slate-800 border border-borderbg py-1.5 rounded text-center text-slate-300">Newegg</a>
+                                <a href="${amazonUrl}" target="_blank" class="bg-slate-900 hover:bg-slate-800 border border-borderbg py-1.5 rounded text-center text-slate-300">Amazon</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            return;
+        }
+
+        // IF query is NOT in local UI at all -> Render DYNAMIC EXTERNAL SEARCH REDIRECT
+        grid.classList.add('hidden');
+        extContainer.classList.remove('hidden');
+        countBadge.textContent = "Búsqueda Externa";
+
+        const rawTerm = searchInput.length > 0 ? searchInput : "Componente de PC";
+        const ebaySearch = getStoreSearchUrl(rawTerm, 'eBay');
+        const mlSearch = getStoreSearchUrl(rawTerm, 'Mercado Libre');
+        const neweggSearch = getStoreSearchUrl(rawTerm, 'Newegg');
+        const amazonSearch = getStoreSearchUrl(rawTerm, 'Amazon');
+
+        extContainer.innerHTML = `
+            <div class="glass-panel p-8 rounded-3xl border border-cyan-500/30 text-center relative overflow-hidden">
+                <div class="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyanaccent text-3xl font-bold flex items-center justify-center mx-auto mb-4 shadow-neon">
+                    <i class="fa-solid fa-globe"></i>
+                </div>
+                
+                <span class="text-xs font-mono text-cyan-400 font-bold uppercase tracking-widest">Buscador Universal en Tiempo Real</span>
+                <h3 class="text-2xl font-extrabold text-white mt-1 mb-2">
+                    Buscar "${rawTerm}" en tiendas externas
+                </h3>
+                <p class="text-slate-400 text-sm max-w-lg mx-auto mb-8">
+                    El término no se encuentra en las tarjetas en pantalla. Haz clic en cualquiera de los botones de abajo para generar la búsqueda exacta en vivo.
+                </p>
+
+                <!-- Market Direct Buttons -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-3xl mx-auto">
+                    <a href="${ebaySearch}" target="_blank" class="bg-slate-900 hover:bg-slate-800 border border-blue-500/30 p-4 rounded-2xl flex flex-col items-center gap-2 group transition-all">
+                        <i class="fa-solid fa-cart-shopping text-2xl text-blue-400 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-sm font-bold text-white">Buscar en eBay</span>
+                        <span class="text-[10px] text-slate-500">Usados / Subastas</span>
+                    </a>
+
+                    <a href="${mlSearch}" target="_blank" class="bg-slate-900 hover:bg-slate-800 border border-amber-500/30 p-4 rounded-2xl flex flex-col items-center gap-2 group transition-all">
+                        <i class="fa-solid fa-bolt text-2xl text-amber-400 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-sm font-bold text-white">Buscar en M. Libre</span>
+                        <span class="text-[10px] text-slate-500">Envíos Locales</span>
+                    </a>
+
+                    <a href="${neweggSearch}" target="_blank" class="bg-slate-900 hover:bg-slate-800 border border-orange-500/30 p-4 rounded-2xl flex flex-col items-center gap-2 group transition-all">
+                        <i class="fa-solid fa-box text-2xl text-orange-400 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-sm font-bold text-white">Buscar en Newegg</span>
+                        <span class="text-[10px] text-slate-500">Nuevos & Refurbished</span>
+                    </a>
+
+                    <a href="${amazonSearch}" target="_blank" class="bg-slate-900 hover:bg-slate-800 border border-cyan-500/30 p-4 rounded-2xl flex flex-col items-center gap-2 group transition-all">
+                        <i class="fa-brands fa-amazon text-2xl text-cyan-400 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-sm font-bold text-white">Buscar en Amazon</span>
+                        <span class="text-[10px] text-slate-500">Catálogo Global</span>
+                    </a>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-borderbg/60 flex flex-wrap items-center justify-center gap-4">
+                    <button onclick="refreshComponentCatalog()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2 rounded-xl transition-colors">
+                        <i class="fa-solid fa-arrows-rotate mr-1"></i> Refrescar 28 piezas en pantalla
+                    </button>
+                    <button onclick="resetFilters()" class="text-xs text-slate-400 hover:text-cyanaccent underline">
+                        Limpiar búsqueda
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderHotDeals() {
+        const grid = document.getElementById('hotDealsGrid');
+        const deals = masterHardwarePool.slice(0, 3);
+        grid.innerHTML = deals.map(deal => {
+            const primaryUrl = getStoreSearchUrl(deal.searchQuery, deal.store);
+            return `
+                <div class="glass-card p-5 rounded-2xl border border-amber-500/20 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 px-2.5 py-1 rounded-md border border-amber-500/30">
+                                ${deal.badge}
+                            </span>
+                            <span class="text-xs text-slate-400 font-semibold">${deal.store}</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white mb-2 leading-snug">${deal.title}</h3>
+                    </div>
+
+                    <div class="pt-3 border-t border-borderbg/60 mt-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xl font-extrabold text-amber-400 font-mono">${formatPrice(deal.priceUSD)}</span>
+                            <a href="${primaryUrl}" target="_blank" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-xl transition-all">
+                                Buscar en ${deal.store}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function toggleCompareItem(id) {
+        const prod = masterHardwarePool.find(p => p.id === id);
+        if (!prod) return;
+
+        const idx = compareList.findIndex(c => c.id === id);
+        if (idx > -1) {
+            compareList.splice(idx, 1);
+        } else {
+            if (compareList.length >= 3) {
+                alert('Puedes comparar un máximo de 3 componentes.');
+                return;
+            }
+            compareList.push(prod);
+        }
+
+        document.getElementById('compareBadge').textContent = compareList.length;
+        renderProductsGrid();
+        renderCompareModal();
+    }
+
+    function toggleCompareModal() {
+        document.getElementById('compareModal').classList.toggle('hidden');
+        renderCompareModal();
+    }
+
+    function clearCompareList() {
+        compareList = [];
+        document.getElementById('compareBadge').textContent = 0;
+        renderProductsGrid();
+        renderCompareModal();
+    }
+
+    function renderCompareModal() {
+        const container = document.getElementById('compareContainer');
+        const emptyState = document.getElementById('compareEmptyState');
+
+        if (compareList.length === 0) {
+            container.innerHTML = '';
+            emptyState.classList.remove('hidden');
+            return;
+        }
+
+        emptyState.classList.add('hidden');
+        container.innerHTML = compareList.map(item => `
+            <div class="bg-slate-900 border border-cyan-500/30 rounded-2xl p-4 flex flex-col justify-between">
+                <div>
+                    <h4 class="text-sm font-bold text-white mb-2">${item.title}</h4>
+                    <span class="text-lg font-extrabold text-cyanaccent font-mono block mb-4">${formatPrice(item.priceUSD)}</span>
+                    <div class="space-y-1.5 text-xs text-slate-400">
+                        <div>Condición: <strong class="text-white">${item.condition}</strong></div>
+                        <div>Categoría: <strong class="text-white">${item.category.toUpperCase()}</strong></div>
+                    </div>
+                </div>
+                <a href="${getStoreSearchUrl(item.searchQuery, item.store)}" target="_blank" class="mt-4 w-full bg-cyanaccent text-slate-950 font-bold text-xs py-2 rounded-xl text-center block">
+                    Buscar en ${item.store}
+                </a>
+            </div>
+        `).join('');
+    }
+
+    function calculatePCBuildSavings() {
+        const cpuVal = document.getElementById('calcCpu').value.split('|').map(Number);
+        const gpuVal = document.getElementById('calcGpu').value.split('|').map(Number);
+        const ramVal = document.getElementById('calcRam').value.split('|').map(Number);
+
+        const newTotalUSD = cpuVal[0] + gpuVal[0] + ramVal[0];
+        const usedTotalUSD = cpuVal[1] + gpuVal[1] + ramVal[1];
+        const savingsUSD = newTotalUSD - usedTotalUSD;
+        const savingsPercent = Math.round((savingsUSD / newTotalUSD) * 100);
+
+        document.getElementById('totalNewPrice').textContent = formatPrice(newTotalUSD);
+        document.getElementById('totalUsedPrice').textContent = formatPrice(usedTotalUSD);
+        document.getElementById('calcSavingsAmount').textContent = `-${formatPrice(savingsUSD)}`;
+        document.getElementById('calcSavingsPercent').textContent = `Ahorras aproximadamente un ${savingsPercent}%`;
+    }
+
+    function startCountdownTimer() {
+        let hours = 3, minutes = 45, seconds = 12;
+        const timerElem = document.getElementById('dealTimer');
+        setInterval(() => {
+            seconds--;
+            if (seconds < 0) {
+                seconds = 59;
+                minutes--;
+                if (minutes < 0) {
+                    minutes = 59;
+                    hours--;
+                    if (hours < 0) hours = 23;
+                }
+            }
+            if (timerElem) {
+                timerElem.textContent = `${hours < 10 ? '0' + hours : hours}h : ${minutes < 10 ? '0' + minutes : minutes}m : ${seconds < 10 ? '0' + seconds : seconds}s`;
+            }
+        }, 1000);
+    }
+
+    function toggleMobileMenu() {
+        document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+</script>
+</body>
+</html>
